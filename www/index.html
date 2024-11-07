@@ -1,98 +1,110 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <meta http-equiv="Content-Security-Policy" content="default-src * data: gap: content: https://ssl.gstatic.com; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
-    <script src="cordova.js"></script>
-    <script src="components/loader.js"></script>
-    <link rel="stylesheet" href="components/loader.css">
-    <link rel="stylesheet" href="css/style.css">
+    <head>
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+        />
+        <meta
+            http-equiv="Content-Security-Policy"
+            content="default-src * data: gap: content: https://ssl.gstatic.com; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'"
+        />
+        <script src="cordova.js"></script>
+        <script src="components/loader.js"></script>
+        <link rel="stylesheet" href="components/loader.css" />
+        <link rel="stylesheet" href="css/style.css" />
 
-    <!-- Firebase SDKの読み込み -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="www/config.js"></script>
+        <!-- Firebase SDKの読み込み -->
+        <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+        <script src="www/config.js"></script>
 
-    <script>
-// Firebaseの初期化
-firebase.initializeApp(firebaseConfig);
+        <script>
+            // Firebaseの初期化
+            firebase.initializeApp(firebaseConfig);
 
-$(function() {
-    // データベースの参照を取得
-    const postsRef = firebase.database().ref('posts');
+            $(function() {
+                // データベースの参照を取得
+                const postsRef = firebase.database().ref('posts');
 
-    // メッセージ表示処理
-    function showMessage(message, type = 'success') {
-        $('#messageArea').html("<div class=\"message " + type +"\">" + message + "</div>");
-    }
+                // メッセージ表示処理
+                function showMessage(message, type = 'success') {
+                    $('#messageArea').html("<div class=\"message " + type +"\">" + message + "</div>");
+                }
 
-    // エラーメッセージ表示処理
-    function showError(message) {
-        showMessage(message, 'error');
-    }
+                // エラーメッセージ表示処理
+                function showError(message) {
+                    showMessage(message, 'error');
+                }
 
-    // 投稿処理
-    $('#postButton').on('click', function() {
-        // 投稿内容をフォームから取得
-        const authorVal = $('#authorInput').val();
-        const contentVal = $('#contentInput').val();
+                // 投稿処理
+                $('#postButton').on('click', function() {
+                    // 投稿内容をフォームから取得
+                    const authorVal = $('#authorInput').val();
+                    const contentVal = $('#contentInput').val();
 
-        // 入力値の検証
-        if (!contentVal || !authorVal) {
-            showError('投稿内容と名前を入力してください');
-            return false;
-        }
+                    // 入力値の検証
+                    if (!contentVal || !authorVal) {
+                        showError('投稿内容と名前を入力してください');
+                        return false;
+                    }
 
-        // 投稿データの生成
-        const postData = {
-            author: authorVal,
-            content: contentVal,
-            timestamp: Date.now()
-        };
+                    // 投稿データの生成
+                    const postData = {
+                        author: authorVal,
+                        content: contentVal,
+                        timestamp: Date.now()
+                    };
 
-        // データベースに投稿を追加
+                    // データベースに投稿を追加
 
-        // この下の行を消して、投稿処理を記述
-        console.log('ボタンが押されました')
-        // この上の行を消して投稿処理を記述
-        // 行末に 「;」 を付けないこと
+                    // この下の行を消して、投稿処理を記述
+                    // RTDB書き込み準備
+                    const db = firebase.database();
+                     const postsRef = db.ref('posts');
+                    // 投稿書き込み
+                    // この上の行を消して投稿処理を記述
+                    // 行末に 「;」 を付けないこと
+                    postsRef.push(postData)
 
-            .then(function() {
-                showMessage('投稿が完了しました！');
-                // 投稿フォームを初期化
-                $('#authorInput').val('');
-                $('#contentInput').val('');
-            })
-            .catch(function(error) {
-                console.error('Post error:', error);
-                showError('投稿に失敗しました：' + error.message);
+                        .then(function() {
+                            showMessage('投稿が完了しました！');
+                            // 投稿フォームを初期化
+                            $('#authorInput').val('');
+                            $('#contentInput').val('');
+                        })
+                        .catch(function(error) {
+                            console.error('Post error:', error);
+                            showError('投稿に失敗しました：' + error.message);
+                        });
+                });
             });
-    });
-});
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>掲示板アプリ</h1>
 
-    </script>
-</head>
-<body>
-    <div class="container">
-        <h1>掲示板アプリ</h1>
-        
-        <!-- メッセージ表示エリア -->
-        <div id="messageArea"></div>
+            <!-- メッセージ表示エリア -->
+            <div id="messageArea"></div>
 
-        <!-- 投稿フォーム -->
-        <div class="post-form">
-            <div class="form-group">
-                <input type="text" id="authorInput" placeholder="名前">
-            </div>
-            <div class="form-group">
-                <textarea id="contentInput" placeholder="投稿内容"></textarea>
-            </div>
-            <div class="form-group">
-                <button id="postButton">投稿する</button>
+            <!-- 投稿フォーム -->
+            <div class="post-form">
+                <div class="form-group">
+                    <input type="text" id="authorInput" placeholder="名前" />
+                </div>
+                <div class="form-group">
+                    <textarea
+                        id="contentInput"
+                        placeholder="投稿内容"
+                    ></textarea>
+                </div>
+                <div class="form-group">
+                    <button id="postButton">投稿する</button>
+                </div>
             </div>
         </div>
-    </div>
-</body>
+    </body>
 </html>
